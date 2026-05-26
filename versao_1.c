@@ -3,14 +3,17 @@
 #include <string.h>
 #include <ctype.h>
 
-#define MAX_CHAR 10
+#define MAX_CHAR 100
 
 int main(){
 
     int flag=1, opcao, i=0, tam;
-    char atividade[50][MAX_CHAR];
+    char atividade[50][MAX_CHAR], atividadeLida[50][MAX_CHAR];//matrizes pra escrita e leitura do arquivo
+    int status[50];//0 a fazer, 1 em andamento, 2 concluido
+    int contador=0;//conta as tarefas
+    FILE *arquivo;
 
-    while(flag==1){
+    while(flag==1){//loop do menu
         printf("===============================");
         printf("\n             MENU              ");
         printf("\n===============================");
@@ -19,7 +22,7 @@ int main(){
             printf("\nDigite o numero da opcao desejada: ");
             scanf("%d", &opcao);
 
-            int c;//limpa o buffer do teclado pq o fgets estava lendo o \n
+            int c;//limpa o buffer do teclado pq o fgets do case 1 tava lendo o \n
             while((c=getchar()) != '\n' && c !=EOF);
 
             if(opcao<1 || opcao>5){
@@ -34,14 +37,28 @@ int main(){
                 printf("\n===============================");
                 do{
                     printf("\n\nNome da atividade(max 100 caracteres): ");
-                    fgets(atividade[i], MAX_CHAR, stdin);//ainda nao funciona, nao eh pra ler do teclado
-                    puts(atividade[i]);
+                    fgets(atividade[i], MAX_CHAR, stdin);//salva do teclado na matriz
+                    atividade[i][strcspn(atividade[i], "\n")] = 0;//remove o \n q o fgets salva no final
+                    status[i]=0;//status da atividade smp começa sendo a fazer
+
+                    arquivo=fopen("atividades.txt", "a");
+                    fprintf(arquivo,"%d\n%s\n", status[i], atividade[i]);//salva o status e a atividade no arquivo
+                    fclose(arquivo);
+                    
                     i++;
-                    printf("\nCadastrar outra atividade?\n1 - sim\n2 - nao\n");
-                    scanf("%d", &flag);
-                    int c;//limpa o buffer do teclado pq o fgets estava lendo o \n
-                    while((c=getchar()) != '\n' && c !=EOF);
-                }while(flag==1);//terminar isso aqui, p verificar se o tamanho da atividade cabe
+                    
+                    do{
+                        printf("\nDeseja cadastrar outra atividade?\n1 - sim\n2 - nao\n");
+                        scanf("%d", &flag);
+                        int c;//limpa o buffer do teclado pq o fgets do loop leu o \n de novo
+                        while((c=getchar()) != '\n' && c !=EOF);
+                        if(flag<1 || flag>2){
+                            printf("\nOpcao invalida!");
+                        }
+                    }while(flag<1 || flag>2);//repete o scanf ate a opcao ser valida
+
+                }while(flag==1);//repete enqt a pessoa quiser salvar atividade
+
                 break;
             case 2:
                 printf("===============================");
