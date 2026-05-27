@@ -21,9 +21,7 @@ int main(){
         do{
             printf("\nDigite o numero da opcao desejada: ");
             scanf("%d", &opcao);
-
-            int c;//limpa o buffer do teclado pq o fgets do case 1 tava lendo o \n
-            while((c=getchar()) != '\n' && c !=EOF);
+            scanf("%*c");
 
             if(opcao<1 || opcao>5){
                 printf("\nOpcao invalida!");
@@ -50,8 +48,7 @@ int main(){
                     do{
                         printf("\nDeseja cadastrar outra atividade?\n1 - sim\n2 - nao\n");
                         scanf("%d", &flag);
-                        int c;//limpa o buffer do teclado pq o fgets do loop leu o \n de novo
-                        while((c=getchar()) != '\n' && c !=EOF);
+                        scanf("%*c");
                         if(flag<1 || flag>2){
                             printf("\nOpcao invalida!");
                         }
