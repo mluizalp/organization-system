@@ -43,6 +43,12 @@ int main(){
                     status[i]=0;//status da atividade smp começa sendo a fazer
 
                     arquivo=fopen("atividades.txt", "a");
+
+                    if (arquivo == NULL) {
+                       printf("Erro ao abrir o arquivo!\n");
+                       return 1;
+                    }//caso o fopen falhe
+                    
                     fprintf(arquivo,"%d\n%s\n", status[i], atividade[i]);//salva o status e a atividade no arquivo
                     fclose(arquivo);
                     
