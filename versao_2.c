@@ -53,6 +53,7 @@ int main(){
                     fclose(arquivo);
                     
                     i++;
+                    contador++;
                     
                     do{
                         printf("\nDeseja cadastrar outra atividade?\n1 - sim\n2 - nao\n");
