@@ -14,9 +14,10 @@ int main(){
     char buscar_ativ[MAX_CHAR];//variavel para ler a atividade buscada
     int numero;//variavel para a movimentacao de atividades
     FILE *arquivo;
+    int ok = 1;
 
     while(flag==1){//loop do menu
-        printf("===============================");
+        printf("\n===============================");
         printf("\n             MENU              ");
         printf("\n===============================");
         printf("\n\n1 - Cadastrar nova atividade\n2 - Listagem das atividades\n3 - Movimentacao das atividades\n4 - Quantidade de atividades\n5 - Busca de atividade\n6 - Encerrar");
@@ -25,10 +26,10 @@ int main(){
             scanf("%d", &opcao);
             scanf("%*c");
 
-            if(opcao<1 || opcao>5){
+            if(opcao<1 || opcao>6){
                 printf("\nOpcao invalida!");
             }
-        }while(opcao<1 || opcao>5);//repete o scanf ate a opcao ser valida
+        }while(opcao<1 || opcao>6);//repete o scanf ate a opcao ser valida
 
         switch(opcao){
             case 1:
@@ -52,14 +53,14 @@ int main(){
                     
                     do{
                         printf("\nDeseja cadastrar outra atividade?\n1 - sim\n2 - nao\n");
-                        scanf("%d", &flag);
+                        scanf("%d", &ok);
                         scanf("%*c");
-                        if(flag<1 || flag>2){
+                        if(ok<1 || ok>2){
                             printf("\nOpcao invalida!");
                         }
-                    }while(flag<1 || flag>2);//repete o scanf ate a opcao ser valida
+                    }while(ok<1 || ok>2);//repete o scanf ate a opcao ser valida
 
-                }while(flag==1);//repete enqt a pessoa quiser salvar atividade
+                }while(ok==1);//repete enqt a pessoa quiser salvar atividade
 
                 break;
             case 2:// ok? so precisamos ver como iremos trabalhar com o arquivo e status (caso essa se mantenha)
