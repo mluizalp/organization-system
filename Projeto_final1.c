@@ -105,7 +105,7 @@ int main(){
                         char copia[MAX_CHAR];
                         strcpy(copia, atividade[i]);
 			
-			char inter[MAX_CHAR];//variavel intermediaria			
+			char inter[MAX_CHAR];//variavel intermediaria		
 			//tira espacos extras
 			for(int k=0; k<contador; k++) {
 
@@ -124,8 +124,8 @@ int main(){
 
                        inter[c]='\0';
                        }
-		      //finaliza
-			
+		      //finaliza					
+
                        for(int k=0; k<strlen(copia); k++){
                             inter[k]=toupper(inter[k]);//transforma a copia em maiusculo pra comparar
                        }			
@@ -163,10 +163,12 @@ int main(){
            			c++;
         			}
    		      }
-    		      corrigida[c]='\0';
+		      if(corrigida[c-1]==' ') {//tentativa 
+    		      		corrigida[c-1]='\0';
+		      }
    		      strcpy(upperAtividade[i], corrigida);
 		   }
-		   //finaliza 		   
+		   //finaliza 
 			
                     status[i]=1;//status da atividade smp começa sendo [1] - a fazer
 
