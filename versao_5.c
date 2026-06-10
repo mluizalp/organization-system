@@ -8,7 +8,7 @@
 #define MAX_TAREFAS 50
 
 // Função que evita salvar atividade que só tem espaços
-int VerificarEspacos(char frase[MAX_CHAR]) {
+int verificar_espacos(char frase[MAX_CHAR]) {
     int Retorno = 1;
 
     for (int i = 0; i < strlen(frase); i++) {
@@ -24,7 +24,7 @@ int VerificarEspacos(char frase[MAX_CHAR]) {
 }
 
 // Função para abrir e ler o arquivo, depois copiar os dados pras matrizes do código
-int LerArquivo(int status[], char atividade[][MAX_CHAR], char upperAtividade[][MAX_CHAR], int *contador) {
+int ler_arquivo(int status[], char atividade[][MAX_CHAR], char upperAtividade[][MAX_CHAR], int *contador) {
     FILE *arquivo = fopen("atividades.txt", "r"); // "r" de read
     if (arquivo == NULL) { // Verifica se deu tudo certo pra abrir o arquivo
         return 0; 
@@ -50,7 +50,7 @@ int LerArquivo(int status[], char atividade[][MAX_CHAR], char upperAtividade[][M
 }
 
 // Função que salva os dados de novo no arquivo
-void escreveDados(int status[], char atividade[][MAX_CHAR], char upperAtividade[][MAX_CHAR], int contador) {
+void escreve_dados(int status[], char atividade[][MAX_CHAR], char upperAtividade[][MAX_CHAR], int contador) {
     FILE *arquivo = fopen("atividades.txt", "w"); // abre/cria o arquivo no modo "w" de write
 
     if (arquivo == NULL) {//verifica se o arquivo abriu c sucesso
@@ -64,7 +64,6 @@ void escreveDados(int status[], char atividade[][MAX_CHAR], char upperAtividade[
     fclose(arquivo);//fecha o arquivo
 }
 
-// Controla a exibição e a leitura da opção do menu
 int ler_opcao() {
     int opcao;
 
@@ -112,7 +111,7 @@ void cadastrar_atividade(int status[], char atividade[][MAX_CHAR], char upperAti
             fgets(atividade[*i], MAX_CHAR, stdin); // Salva do teclado na matriz
             atividade[*i][strcspn(atividade[*i], "\n")] = '\0'; // Tira o \n
             
-            apenasEspacos = VerificarEspacos(atividade[*i]);
+            apenasEspacos = verificar_espacos(atividade[*i]);
             if (apenasEspacos == 1) continue;
 
             char copia[MAX_CHAR];
@@ -157,7 +156,6 @@ void cadastrar_atividade(int status[], char atividade[][MAX_CHAR], char upperAti
     } while (ok == 1); 
 }
 
-// MODIFICADO: Listagem limpa sem exibir o índice numérico
 void listar_atividade(int status[], char atividade[][MAX_CHAR], int contador) {
     printf("\n===============================");
     printf("\n    LISTAGEM DE ATIVIDADES     ");
@@ -259,7 +257,6 @@ void quantidade_atividade(int status[], int contador) {
     printf("\nTotal: %d\n", total);
 }
 
-// MODIFICADO: Busca adaptada para procurar por String/Nome da atividade
 void buscar_atividade(int status[], char atividade[][MAX_CHAR], char upperAtividade[][MAX_CHAR], int contador) {
     printf("\n===============================");
     printf("\n       BUSCA DE ATIVIDADE      ");
@@ -289,7 +286,7 @@ void buscar_atividade(int status[], char atividade[][MAX_CHAR], char upperAtivid
             if (strcmp(upperAtividade[j], buscar_ativ) == 0) {
                 pos = j;
                 validador = 1;
-                break; // Achou, pode parar o loop
+                break; 
             }
         }
 
@@ -297,15 +294,14 @@ void buscar_atividade(int status[], char atividade[][MAX_CHAR], char upperAtivid
             printf("\nAtividade nao encontrada.");
             printf("\nDeseja tentar novamente? (1 - Sim / 2 - Nao): ");
             scanf("%d", &continuar);
-            scanf("%*c"); // Limpa o buffer
+            scanf("%*c"); 
             if (continuar != 1) {
-                return; // Sai da função de busca
+                return; 
             }
         }
 
     } while (validador == 0);
 
-    // Se encontrou, exibe os dados baseados na posição 'pos' encontrada
     printf("\nAtividade encontrada!\n");
     printf("Nome:   %s\n", atividade[pos]);
     printf("Status: ");
@@ -323,7 +319,7 @@ int main() {
     int contador = 0;                            // Conta as tarefas
 
     // Inicializa carregando dados do arquivo
-    LerArquivo(status, atividade, upperAtividade, &contador);
+    ler_arquivo(status, atividade, upperAtividade, &contador);
     i = contador;
 
     while (flag == 1) {
@@ -347,7 +343,6 @@ int main() {
                 break;
                 
             case 5:
-                // Passado também a matriz 'upperAtividade' para poder fazer a busca textual correta
                 buscar_atividade(status, atividade, upperAtividade, contador); 
                 break;
                 
@@ -362,7 +357,7 @@ int main() {
     }
 
     // Grava as alterações de volta no arquivo antes de sair
-    escreveDados(status, atividade, upperAtividade, contador);
+    escreve_dados(status, atividade, upperAtividade, contador);
     
     printf("\nOs dados foram salvos. Programa encerrado.\n\n");
 
