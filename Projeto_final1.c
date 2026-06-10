@@ -104,12 +104,35 @@ int main(){
                         apenasEspacos=VerificarEspacos(atividade[i]);
                         char copia[MAX_CHAR];
                         strcpy(copia, atividade[i]);
-                        for(int k=0; k<strlen(copia); k++){
-                            copia[k]=toupper(copia[k]);//transforma a copia em maiusculo pra comparar
-                        }
+			
+			char inter[MAX_CHAR];//variavel intermediaria			
+			//tira espacos extras
+			for(int k=0; k<contador; k++) {
 
-                        for(int k=0; k<contador; k++){
-                            igual=strcmp(copia,upperAtividade[k]);//recebe 0 caso sejam iguais
+                        int b=0, c=0;//incrementam pos das letras
+
+                         for(b=0; b<strlen(atividade[i]); b++){
+                                if(copia[b]!=' '){
+                                    inter[c]=copia[b];
+                                    if(copia[b+1]==' '){
+                                        inter[c+1]=' ';
+                                        c++;
+                                    }
+                                c++;
+                                }
+                         }
+
+                       inter[c]='\0';
+                       }
+		      //finaliza
+			
+                       for(int k=0; k<strlen(copia); k++){
+                            inter[k]=toupper(inter[k]);//transforma a copia em maiusculo pra comparar
+                       }			
+	
+
+                       for(int k=0; k<contador; k++){
+                            igual=strcmp(inter,upperAtividade[k]);//recebe 0 caso sejam iguais
                             if(igual==0){
                                 printf("\nAtividade ja cadastrada anteriormente. Digite outra:\n");
                                 jaExiste=1;//retorna 1 pra indicar q eh invalida
@@ -125,6 +148,7 @@ int main(){
                         upperAtividade[i][k] = toupper(atividade[i][k]);
                     }
 		   
+		   //tirar espacos extras do upper
 		   for(int k=0; k<contador; k++) {
 			char corrigida[MAX_CHAR];
   			int b=0, c=0;//incrementam pos das letras
@@ -142,8 +166,8 @@ int main(){
     		      corrigida[c]='\0';
    		      strcpy(upperAtividade[i], corrigida);
 		   }
-		   puts(upperAtividade[i]);		   
-
+		   //finaliza 		   
+			
                     status[i]=1;//status da atividade smp começa sendo [1] - a fazer
 
                     printf("\nAtividade cadastrada com sucesso!\n");
@@ -255,6 +279,26 @@ int main(){
                         for (int j = 0; buscar_ativ[j] != '\0'; j++) {
                             buscar_ativ[j] = toupper(buscar_ativ[j]);//deixa tudo maiusculo para a busca
                         }
+
+			//tirar espacos extras
+			for(int k=0; k<contador; k++) {
+                        char troca[MAX_CHAR];
+                        int b=0, c=0;//incrementam pos das letras
+
+                         for(b=0; b<strlen(atividade[i]); b++){
+                                if(buscar_ativ[b]!=' '){
+                                    troca[c]=buscar_ativ[b];
+                                    if(buscar_ativ[b+1]==' '){
+                                        troca[c+1]=' ';
+                                        c++;
+                                    }
+                                c++;
+                                }
+                         }
+
+                       troca[c]='\0';
+		      strcmp(buscar_ativ, troca);
+                       }
 
                         for(int j=0; j<contador; j++){
                             if(strcmp(upperAtividade[j], buscar_ativ)==0){//se a string de busca e a original maiuscula forem iguais
