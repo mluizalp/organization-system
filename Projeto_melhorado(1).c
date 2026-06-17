@@ -1,0 +1,299 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+#define MAX_CHAR 150
+#define MAX_TAREFAS 100
+#define MAX_FUNCIONARIOS 100
+
+struct dados {
+
+  char atividade[MAX_TAREFAS][MAX_CHAR];
+  char upperAtividade[MAX_TAREFAS][MAX_CHAR];
+  int status[MAX_TAREFAS];
+  int prioridade[MAX_TAREFAS];
+  int contador;
+
+};
+
+struct usuario {
+
+  int id;
+  char senha[MAX_CHAR];
+  char nome[MAX_CHAR];
+
+};
+
+int VerificarEspacos(char frase[MAX_CHAR]){// evitar salvar oq tiver so espacos
+    int Retorno=1;
+    int i;
+    for(i=0; i<strlen(frase); i++){
+        if(frase[i]!=' ' && frase[i]!='\n'){
+            Retorno=0;//frase valida
+            break;
+        }
+    }
+    return Retorno;
+}
+
+void limpar_tela() { // pesquisei pq elas eram diferentes p W e L, ai po, nada inclusivo ne
+    #ifdef _WIN32 // basicamente, se for windows, _WIN32 existe
+        system("cls"); // usa esse
+    #else // se nao for Windows
+        system("clear");
+    #endif // fecha o bloco
+}
+
+void cadastro_usuario (struct usuario y[], int *total) {
+  int flag = 1;
+
+  if(*total >= MAX_FUNCIONARIOS) {
+	printf("\nSistema lotado, por favor fale com a gerencia");
+	return; // so retorna msm
+  }
+
+  int k = *total;
+  y[k].id = 10000 + k;
+
+  printf("\n===============================");
+  printf("\n      CADASTRO DE USUARIO      ");
+  printf("\n===============================");
+  printf("\nID gerado (lembre-se dele para entrar): %d", y[k].id);
+  
+  do { // looping para nome valido
+        printf("\nDigite seu nome: ");
+        fgets(y[k].nome, MAX_CHAR, stdin);
+
+        y[k].nome[strcspn(y[k].nome, "\n")] = '\0'; // evita problema
+  
+        flag = VerificarEspacos(y[k].nome);
+  
+        if (flag) {
+		        printf("\nNao eh permitido o cadastro de nomes vazios");	
+        }
+  } while (flag);
+  
+  do { // looping para senha valida
+	     printf("\nSenha (digite sua senha): ");
+       fgets(y[k].senha, MAX_CHAR, stdin);
+
+       y[k].senha[strcspn(y[k].senha, "\n")] = '\0'; // evita problema
+	
+	     flag = VerificarEspacos(y[k].senha);  
+
+	     if (flag) {
+		       printf("\nDigite uma senha válida!");
+	     }
+  } while (flag);
+
+  (*total)++; // incrementar a quantidade de gente
+
+  printf("\nCadastro realizado com sucesso! Bom trabalho!");   
+
+}
+
+int checar_id(int ident, struct usuario y[], int total) {
+  int j;
+	for(j = 0; j < total; j++) {
+		if (y[j].id == ident) {
+			return 1;
+		}
+	}
+	return 0;
+}
+
+int posicao_id(int ident, struct usuario y[], int total) {
+	int j;
+        for(j = 0; j < total; j++) {
+                if (y[j].id == ident) {
+                        return j;
+                }
+        }
+  return -1;
+}
+
+int checar_sen(char sen[], struct usuario y[], int pos) {
+	if (strcmp(y[pos].senha, sen)== 0) {
+		return 1;
+	}
+  return 0;
+}
+
+int entrar_usuario (struct usuario y[], int total) {
+  
+  //Variaveis daqui  
+  int ident, flag = 1, pos = 0, ok = 1, nao_sei, flag2 = 0;
+  char sen[MAX_CHAR];
+  //////////////////////
+
+  printf("\n===============================");
+  printf("\n       ACESSO DE USUARIO       ");
+  printf("\n===============================");
+
+  do { // socorro tem muita verificacao
+
+	  printf("\nDigite seu id: ");
+  	scanf("%d", &ident);
+  	getchar();  
+
+  	flag = checar_id(ident, y, total); // ve se existe ne
+
+  	if (flag) {
+        	pos = posicao_id(ident, y, total); // pega a posicao do id 
+        	do {
+			      printf("\nSenha: ");
+        		fgets(sen, MAX_CHAR, stdin);
+
+			      sen[strcspn(sen, "\n")] = '\0';// tirar o \n para nao ficar dando problema
+
+        		flag2 = checar_sen(sen, y, pos); // ve se existe E se eh a do id
+        		
+			      if (flag2) {
+       				  printf("\nAcesso liberado ao usuario: %s", y[pos].nome);
+ 			      } else {
+				        printf("\nSenha incorreta. Tente novamente!");
+			      } 
+ 		      } while (flag2 == 0);
+            return pos;
+
+  	} else {
+        	do {
+			      printf("\nId nao existe. O que deseja?\n[1]Sair\n[2]Digitar novamente\n:");
+        		scanf("%d", &nao_sei);
+        		if (nao_sei == 1) {
+				         return -1;
+			      } else if (nao_sei == 2) {
+				        ok = 0;	
+			      } else {
+				        printf("\nEntrada invalida");
+			      }
+        	}while(nao_sei < 1 || nao_sei > 2);
+  	}
+} while (ok == 0);
+
+}
+
+int main () {
+
+  //VARIAVEIS PARA TODOS==============================
+  int flag = 1, opcao, i = 0, ok = 1, numero, pos, res;
+  char buscar_ativ[MAX_CHAR];
+  int total = 0, f;
+  //==================================================
+
+  //Funcao ler arquivo - quando a gente entender a parte de arquivo
+  // i = contador // verificar se isso se manteria ou nao 
+
+  struct dados x[MAX_FUNCIONARIOS];
+  struct usuario y[MAX_FUNCIONARIOS];  
+
+  printf("\n==============================");
+  printf("\n         BEM VINDO!           ");
+  printf("\n==============================");
+
+  do {
+  	printf("\nO que deseja?");
+  	printf("\n[1]Cadastro\n[2]Entrar\n[3]Sair\n");
+	  scanf("%d", &res);
+	  getchar();
+
+	  if (res < 1 || res > 3) { // Validacao de resposta
+		    printf("\nResposta invalida! Tente novamente");
+    }
+  
+	  if (res == 1) {
+		   cadastro_usuario(y, &total); // Chama a funcao de cadastro
+       limpar_tela();
+		   do {
+		       printf("\nDeseja entrar?\n[1]Sim\n[2]Nao\n: ");
+		       scanf("%d", &f);
+           if (f < 1 || f > 2) { // Validacao
+			        printf("\nResposta invalida! Tente novamente");
+		       }
+		   } while (f < 1 || f > 2);	
+   }
+
+   limpar_tela();
+
+    if (res == 2 || f == 1) { // Chama a funcao de entrada
+		     pos = entrar_usuario(y, total);
+		     if (pos == -1) {
+		 	      printf("\nSistema finalizado");
+			      return 0;
+		     } else {
+			      res = 3;
+		     }
+         limpar_tela();
+    } else if (res == 3) {
+		     printf("\nSistema finalizado!!!");
+	  }
+
+  } while (res != 3);
+
+  ///////// aqui ja eh o codigo antigo
+  // Menu inicial
+
+  while(flag==1){//loop do menu
+        printf("\n===============================");
+        printf("\n             MENU              ");
+        printf("\n===============================");
+        printf("\n\n1 - Cadastrar nova atividade\n2 - Listagem das atividades\n3 - Movimentacao das atividades\n4 - Quantidade de atividades por colaborador\n5 - Busca de atividades\n6 - Listagem de colaboradores\n7 - Estatistica geral\n8 - Ranking de produtividade\n9 - Salvar e Encerrar\n");
+        do{
+            printf("\nDigite o numero da opcao desejada: ");
+            scanf("%d", &opcao);
+            scanf("%*c");
+
+            if(opcao<1 || opcao>9){
+                printf("\nOpcao invalida!");
+            }
+        }while(opcao<1 || opcao>9);//repete o scanf ate a opcao ser valida
+	
+	switch(opcao){// pensei em falzer funcao para alguns cases e para outros nn
+		case 1:
+		  break;
+		case 2: // preciso checar ainda por conta do cadastro (nao sei se assim funciona)
+		  
+		  printf("\n===============================");
+      printf("\n    LISTAGEM DE ATIVIDADES     ");
+      printf("\n===============================");
+      int j;
+		  printf("\nA FAZER:");
+      for(j = 0; j < x[pos].contador; j++) {
+            if (x[pos].status[j] == 1) {
+                    printf("\n - %s", x[pos].atividade[j]);
+            }
+      }
+      printf("\nEM ANDAMENTO:");
+      for(j = 0; j < x[pos].contador; j++) {
+            if (x[pos].status[j] == 2) {
+                    printf("\n - %s", x[pos].atividade[j]);
+		        }
+		  }
+		  printf("\nCONCLUIDO:");
+      for(j = 0; j < x[pos].contador; j++) {
+            if (x[pos].status[j] == 3) {
+                    printf("\n - %s", x[pos].atividade[j]);
+            }
+      }
+      printf("\n");
+		  break;
+		case 3:
+		  break;
+		case 4:
+		  break;
+		case 5:
+		  break;
+		case 6:
+		  break;
+		case 7:
+		  break;
+		case 8:
+		  break;
+		case 9:
+		  flag = 2;
+		  break;
+	}
+  }
+  return 0;
+}  
