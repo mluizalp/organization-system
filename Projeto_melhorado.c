@@ -270,7 +270,7 @@ int main() {
                     printf("\n===============================");
                     printf("\n     CADASTRO DE ATIVIDADE     ");
                     printf("\n===============================\n");
-                    if (x[pos].contador > MAX_TAREFAS) { // verificao de limite de tarefas
+                    if (x[pos].contador >= MAX_TAREFAS) { // verificao de limite de tarefas
                         printf("\nLimite de tarefas atingido.\n");
                     } else {
                         int k;
