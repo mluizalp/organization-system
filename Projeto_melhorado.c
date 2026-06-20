@@ -84,7 +84,7 @@ void cadastro_usuario(struct usuario y[], int *total) {
         return; // so retorna msm
     }
     int k = *total;
-    y[k].id = 10000 + k;
+    y[k].id = 10100 + k;
     printf("\n===============================");
     printf("\n      CADASTRO DE USUARIO      ");
     printf("\n===============================");
