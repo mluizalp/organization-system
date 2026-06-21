@@ -21,6 +21,74 @@ struct usuario {
     char nome[MAX_CHAR];
 };
 
+void AtividadeColaborador (struct dados x[], struct usuario y[], int total) {
+    printf("\n===============================");
+    printf("\n   ATIVIDADES POR COLABORADOR  ");
+    printf("\n===============================\n");
+    
+    int j; 
+    for (j = 0; j < total; j++) {
+        int aFazer = 0, emAndamento = 0, concluido = 0;
+        int k = 0;
+        for (k = 0; k < x[j].contador; k++) {
+            if (x[j].status[k] == 1) {
+                aFazer++;
+            } else if (x[j].status[k] == 2) {
+                emAndamento++;
+            } else if (x[j].status[k] == 3) {
+                concluido++;
+            }
+        }
+        printf("- Colaborador: %s\nA fazer: %d\nEm andamento: %d\nConcluido: %d\nTotal: %d\n\n", y[j].nome, aFazer, emAndamento, concluido, x[j].contador);
+
+    }
+}
+
+void MovimentarAtiv (struct dados x[], int pos) {
+    int numero;
+    printf("\n===============================");
+    printf("\n   MOVIMENTACAO DE ATIVIDADES  ");
+    printf("\n===============================\n");
+                
+    if(x[pos].contador>0){
+        int j, res = 2;
+
+        for(j=0; j<x[pos].contador; j++){ //imprime a lista de atividades e usuario escolhe numero
+            if (x[pos].status[j] != 3) {
+                printf("%d - ", j);
+                puts(x[pos].atividade[j]);
+            }
+        }
+
+        do {
+            printf("\nDigite o numero da atividade que deseja movimentar: ");
+            scanf("%d", &numero);
+
+            if(numero < 0 || numero >= x[pos].contador) {
+                printf("\nAtividade nao existe.\n");
+                printf("\nDeseja tentar novamente?\n[1] Sim\n[2] Nao\n");
+                scanf("%d", &res);
+            } else {
+                do{
+                    res = 2;
+                    printf("\nPara qual status deseja tranferi-la?\n");
+                    printf("[2] A fazer -> Em andamento\n[3] Em andamento -> Concluido\n");
+                    scanf("%d", &x[pos].status[numero]); //salva o status na posicao da atividade escolhida
+                    if(x[pos].status[numero]<2 || x[pos].status[numero]>3){
+                        printf("\nStatus invalido!");
+                    } //testa se o usuario n digitou outro numero pro status
+                }while(x[pos].status[numero]<2 || x[pos].status[numero]>3);
+
+                printf("\nTransferencia concluida!\n");
+            }
+        } while (res == 1);
+        
+    }else{
+        printf("\nNenhuma atividade cadastrada.\n");
+    }
+
+}
+
 void Lista_colab(struct usuario y[], int total) {
     printf("\n===============================");
     printf("\n         COLABORADORES         ");
@@ -186,13 +254,12 @@ int entrar_usuario(struct usuario y[], int total) {
 
 int main() {
     //VARIAVEIS PARA TODOS==============================
-    int flag = 1, opcao, i = 0, ok = 1, numero, pos, res;
+    int flag = 1, opcao, i = 0, ok = 1, pos, res;
     char buscar_ativ[MAX_CHAR];
     int total = 0, f = 0, retornar = 0;
     //==================================================
 
     //Funcao ler arquivo - quando a gente entender a parte de arquivo
-    // i = contador // verificar se isso se manteria ou nao
 
     struct dados x[MAX_FUNCIONARIOS];
     struct usuario y[MAX_FUNCIONARIOS];
@@ -354,8 +421,10 @@ int main() {
                     break;
 
                 case 3:
+                    MovimentarAtiv(x, pos);
                     break;
                 case 4:
+                    AtividadeColaborador(x, y, total);
                     break;
                 case 5:
                     break;
