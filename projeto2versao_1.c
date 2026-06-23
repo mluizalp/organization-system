@@ -19,7 +19,6 @@ struct usuario {
     int id;
     char senha[MAX_CHAR];
     char nome[MAX_CHAR];
-    int classificacao;
 };
 
 void AtividadeColaborador (struct dados x[], struct usuario y[], int total) {
@@ -282,7 +281,7 @@ void ranking(struct dados x[], struct usuario y[], int total){
     int somaConcluido, i, j;
     for(i=0; i<total; i++){//percorre os colaboradores
         somaConcluido=0;
-        for(j=0; j<x[j].contador; j++){
+        for(j=0; j<x[i].contador; j++){
             if(x[i].status[j] == 3){
                 somaConcluido++;//vai somar todas as atv concluidas de um colaborador
             }
@@ -292,14 +291,14 @@ void ranking(struct dados x[], struct usuario y[], int total){
     }
     int aux, ajuda;
     for(i=0; i<total-1; i++){//coloca os totais em ordem 
-        for(j=0; j<total-i-1; i++){
-            if(classificacao[i]<classificacao[i+1]){
-                aux=classificacao[i];
-                ajuda=posicao[i];
-                classificacao[i]=classificacao[i+1];
-                posicao[i]=posicao[i+1];
-                classificacao[i+1]=aux;
-                posicao[i+1]=ajuda;
+        for(j=0; j<total-i-1; j++){
+            if(classificacao[j]<classificacao[j+1]){
+                aux=classificacao[j];
+                ajuda=posicao[j];
+                classificacao[j]=classificacao[j+1];
+                posicao[j]=posicao[j+1];
+                classificacao[j+1]=aux;
+                posicao[j+1]=ajuda;
             }
         }
     }
@@ -310,9 +309,98 @@ void ranking(struct dados x[], struct usuario y[], int total){
 
     for(i=0; i<total; i++){
         pos=i;
-        printf("%d lugar - %s - %d atividades concluidas\n", pos+1, y[posicao[i]].nome, x[posicao[i]].classificacao);
+        printf("%d lugar - %s - %d atividades concluidas\n", pos+1, y[posicao[i]].nome, classificacao[i]);
     }
 
+}
+
+//le oq o usuario digitar e compara c tudo q tem cadastrado
+int comparaDigitadaCadastradas(struct dados x[], struct usuario y[], int total){
+
+    int i, validador=0, pos, ok=0, apenasEspacos = 0;
+    char buscar_ativ[MAX_CHAR], copia[MAX_CHAR];
+
+    do{//repete leitura enquanto for apenas espacos 
+        printf("\nDigite a atividade: ");
+        fgets(buscar_ativ, sizeof(buscar_ativ), stdin);//le a atividade q o usuario digitou
+        buscar_ativ[strcspn(buscar_ativ, "\n")] = '\0';//tira o \n
+        apenasEspacos = VerificarEspacos(buscar_ativ);
+        if(apenasEspacos == 1){
+            printf("\nAtividade invalida!");
+        }
+    }while(apenasEspacos == 1);
+
+    int j;
+    for (j = 0; buscar_ativ[j] != '\0'; j++) {
+        copia[j] = toupper(buscar_ativ[j]);//deixa tudo maiusculo para a busca
+    }
+
+    //tirar espacos extras
+    char troca[MAX_CHAR];
+    int b=0, c=0;//incrementam pos das letras
+
+    for(b=0; b<strlen(buscar_ativ); b++){
+        if(buscar_ativ[b]!=' '){
+            troca[c]=buscar_ativ[b];
+            if(buscar_ativ[b+1]==' '){
+                troca[c+1]=' ';
+                c++;
+            }
+            c++;
+        }
+    }
+
+    troca[c]='\0';
+
+    if(c > 0 && troca[c-1]==' ') { //tira o espaco extra caso tenha 
+        troca[c-1]='\0';
+    }
+
+    strcpy(copia, troca);
+
+    for(i=0; i<total; i++){
+        for(j=0; j<x[i].contador; j++){
+            if(strcmp(x[i].upperAtividade[j], copia)==0){//se a string digitada e a original maiuscula forem iguais
+                pos=j;//salva a posicao da atividade encontrada
+                validador=1;//confirma q foi encontrado p terminar a verificacao
+            }
+        }
+    }
+
+    return validador;
+
+}
+
+void buscarAtividade(struct dados x[], struct usuario y[], int total){
+    int i, validador=0, pos, totalAtv=0;
+
+    for(i=0; i<total; i++){//soma todas as atividades de tds os funcionarios
+        totalAtv=totalAtv + x[i].contador;
+    }
+
+    if(totalAtv>0){
+        
+        int validador;
+        validador=comparaDigitadaCadastradas(x, y, total);//CONTINUA DAQUIIII AAAAAA
+
+        if(validador==0){
+            printf("\nAtividade não encontrada.");
+        }else {
+            printf("\nAtividade encontrada!\n");
+            puts(atividade[pos]);
+            printf("\nStatus - ");
+
+            if(status[pos]==1){
+                    printf("A fazer");
+            }else if(status[pos]==2){
+                    printf("Em andamento");
+            }else if(status[pos]==3){
+                    printf("Concluida");
+            }
+        }
+    }else{
+        printf("\nNenhuma atividade cadastrada.\n");
+    }
 }
 
 int entrar_usuario(struct usuario y[], int total) {
@@ -337,7 +425,18 @@ int entrar_usuario(struct usuario y[], int total) {
                 if (flag2) {
                     printf("\nAcesso liberado ao usuario: %s", y[pos].nome);
                 } else {
-                    printf("\nSenha incorreta. Tente novamente!");
+                    printf("\nSenha incorreta.\n1 - Tentar novamente\n2 - Voltar ao inicio\n:");
+                    do{
+                        scanf("%d", &flag2);
+                        if(flag2<1 || flag2>2){
+                            printf("\nOpcao invalida. Digite novamente: ");
+                        }
+                    }while(flag2<1 || flag2>2);
+                    if(flag2==1){//se escolheu tentar novamente, volta pro loop
+                        flag2=0;
+                    }else{//sai caso n queira tentar novamente
+                        return -1;
+                    }
                 }
             } while (flag2 == 0);
             return pos;
@@ -358,22 +457,67 @@ int entrar_usuario(struct usuario y[], int total) {
     return -1;
 }
 
+int LerArquivo(struct dados x[], struct usuario y[], int *total){
+    FILE *arquivo = fopen("empresa.txt", "r");
+    if(arquivo==NULL){
+        return 0;
+    }
+    int i=0, j=0;
+
+    while(i<MAX_FUNCIONARIOS && fscanf(arquivo, "%d\n", &y[i].id)==1){//enquanto tiver dentro do limite de funcionarios e obter sucesso na leitura do id
+        fgets(y[i].nome, MAX_CHAR, arquivo);
+        y[i].nome[strcspn(y[i].nome, "\n")] = 0;
+        fgets(y[i].senha, MAX_CHAR, arquivo); 
+        y[i].senha[strcspn(y[i].senha, "\n")] = 0;
+        fscanf(arquivo, "%d\n", &x[i].contador);//le o contador de atividades do funcionario i
+
+        for(j=0; j<x[i].contador; j++){//percorre todas as atividades do funcionario i
+
+            fscanf(arquivo, "%d\n", &x[i].status[j]);
+
+            fgets(x[i].atividade[j], MAX_CHAR, arquivo);//le a atividade[j] do usuario [i] no arquivo
+            x[i].atividade[j][strcspn(x[i].atividade[j], "\n")] = 0; //troca \n por \0
+
+            fgets(x[i].upperAtividade[j], MAX_CHAR, arquivo);// le a atividade em maiúsculo no arquivo
+            x[i].upperAtividade[j][strcspn(x[i].upperAtividade[j], "\n")] = 0; // troca \n por \0
+
+            fscanf(arquivo, "%d\n", &x[i].prioridade[j]);
+        }
+        i++;
+    }
+    fclose(arquivo);
+    *total=i;
+    return i;
+}
+
+void SalvaArquivo(struct dados x[], struct usuario y[], int total){
+    FILE *arquivo = fopen("empresa.txt", "w");
+    
+    if(arquivo == NULL){
+        return;
+    }
+
+    int i=0, j=0;
+
+    for(i=0; i<total; i++){
+        fprintf(arquivo, "%d\n%s\n%s\n%d\n", y[i].id, y[i].nome, y[i].senha, x[i].contador);
+        for(j=0; j<x[i].contador; j++){
+            fprintf(arquivo, "%d\n%s\n%s\n%d\n", x[i].status[j], x[i].atividade[j], x[i].upperAtividade[j], x[i].prioridade[j]);
+        }
+    }
+    fclose(arquivo);
+}
+
 int main() {
     //VARIAVEIS PARA TODOS==============================
     int flag = 1, opcao, i = 0, ok = 1, pos, res;
-    char buscar_ativ[MAX_CHAR];
     int total = 0, f = 0, retornar = 0;
     //==================================================
-
-    //Funcao ler arquivo - quando a gente entender a parte de arquivo
 
     struct dados x[MAX_FUNCIONARIOS];
     struct usuario y[MAX_FUNCIONARIOS];
 
-    int j;
-    for (j = 0; j < MAX_FUNCIONARIOS; j++) {
-        x[j].contador = 0;
-    } // tirar quando a gente ajeitar o arquivo (aq eh so para nao ficar com lixo de memoria por enquanto)
+    LerArquivo(x, y, &total);
 
     do {
         flag = 1;
@@ -450,7 +594,7 @@ int main() {
                         do {
                             int apenasEspacos = 0, jaExiste = 0, igual;
                             do {
-                                printf("\nNome da atividade(max 100 caracteres): ");
+                                printf("\nNome da atividade(max %d caracteres): ", MAX_CHAR);
                                 fgets(x[pos].atividade[i], MAX_CHAR, stdin); //salva do teclado
                                 x[pos].atividade[i][strcspn(x[pos].atividade[i], "\n")] = '\0'; // tirar o \n
                                 apenasEspacos = VerificarEspacos(x[pos].atividade[i]);
@@ -488,7 +632,7 @@ int main() {
                             i++;
                             x[pos].contador++;
                             do {
-                                printf("\nDeseja cadastrar outra atividade?\n1 - sim\n2- nao\n");
+                                printf("\nDeseja cadastrar outra atividade?\n1 - sim\n2 - nao\n");
                                 scanf("%d", &ok);
                                 scanf("%*c"); //limpa o buffer
                                 if (ok < 1 || ok > 2) {
@@ -500,7 +644,6 @@ int main() {
                     break;
 
                 case 2:
-                    limpar_tela();
                     listagemAtividades(pos, x);
                     break;
 
@@ -510,10 +653,14 @@ int main() {
                 case 4:
                     AtividadeColaborador(x, y, total);
                     break;
-                case 5:
+                case 5://buscar atividade
+                    printf("\n===============================");
+                    printf("\n      BUSCA DE ATIVIDADE       ");
+                    printf("\n===============================");
+                    buscarAtividade(x, y, total);
+
                     break;
                 case 6:
-                    limpar_tela();
                     Lista_colab(y, total);
                     break;
                 case 7://estatistica
@@ -532,5 +679,9 @@ int main() {
             }
         }
     } while (retornar); // isso aq vai dar opcao p o usuario voltar la
+
+    SalvaArquivo(x, y, total);
+    printf("\nDados salvos com sucesso!\nFim do programa.\n");
+
     return 0;
 }
