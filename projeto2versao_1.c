@@ -313,55 +313,28 @@ void ranking(struct dados x[], struct usuario y[], int total){
     }
 
 }
-
 //le oq o usuario digitar e compara c tudo q tem cadastrado
-int comparaDigitadaCadastradas(struct dados x[], struct usuario y[], int total){
+int comparaDigitadaCadastradas(char buscar_ativ[], struct dados x[], struct usuario y[], int total, int *pos, int *posColab){
 
-    int i, validador=0, pos, ok=0, apenasEspacos = 0;
-    char buscar_ativ[MAX_CHAR], copia[MAX_CHAR];
+    int i, j, validador=0, ok=0, apenasEspacos = 0;
+    char copia[MAX_CHAR];
+    char textoAnalise[MAX_CHAR];
 
-    do{//repete leitura enquanto for apenas espacos 
-        printf("\nDigite a atividade: ");
-        fgets(buscar_ativ, sizeof(buscar_ativ), stdin);//le a atividade q o usuario digitou
-        buscar_ativ[strcspn(buscar_ativ, "\n")] = '\0';//tira o \n
-        apenasEspacos = VerificarEspacos(buscar_ativ);
-        if(apenasEspacos == 1){
-            printf("\nAtividade invalida!");
-        }
-    }while(apenasEspacos == 1);
+    strcpy(textoAnalise, buscar_ativ);
 
-    int j;
-    for (j = 0; buscar_ativ[j] != '\0'; j++) {
-        copia[j] = toupper(buscar_ativ[j]);//deixa tudo maiusculo para a busca
+    textoAnalise[strcspn(textoAnalise, "\n")] = '\0';//tira o \n
+    apenasEspacos = VerificarEspacos(textoAnalise);
+    if(apenasEspacos == 1){
+        return 2;//retorna q eh apenas espacos (invalida)
     }
-
-    //tirar espacos extras
-    char troca[MAX_CHAR];
-    int b=0, c=0;//incrementam pos das letras
-
-    for(b=0; b<strlen(buscar_ativ); b++){
-        if(buscar_ativ[b]!=' '){
-            troca[c]=buscar_ativ[b];
-            if(buscar_ativ[b+1]==' '){
-                troca[c+1]=' ';
-                c++;
-            }
-            c++;
-        }
-    }
-
-    troca[c]='\0';
-
-    if(c > 0 && troca[c-1]==' ') { //tira o espaco extra caso tenha 
-        troca[c-1]='\0';
-    }
-
-    strcpy(copia, troca);
+    RemoverEspacos(textoAnalise, copia); // tirar espacos inuteis
+    Transfor_Maius(copia); // colocar em maiusculo
 
     for(i=0; i<total; i++){
         for(j=0; j<x[i].contador; j++){
             if(strcmp(x[i].upperAtividade[j], copia)==0){//se a string digitada e a original maiuscula forem iguais
-                pos=j;//salva a posicao da atividade encontrada
+                *pos=j;//salva a posicao da atividade encontrada
+                *posColab=i;//salva de qual colaborador pertence
                 validador=1;//confirma q foi encontrado p terminar a verificacao
             }
         }
@@ -371,8 +344,53 @@ int comparaDigitadaCadastradas(struct dados x[], struct usuario y[], int total){
 
 }
 
+void cadastrarAtividade(struct dados x[], struct usuario y[], int total, int pos){
+    printf("\n===============================");
+    printf("\n     CADASTRO DE ATIVIDADE     ");
+    printf("\n===============================\n");
+    if (x[pos].contador >= MAX_TAREFAS) { // verificao de limite de tarefas
+        printf("\nLimite de tarefas atingido.\n");
+    } else {
+        int k, invalida=0, posBusca, posColabBusca;
+        int indiceAtual=x[pos].contador;
+        
+        printf("\nNome da atividade(max %d caracteres): ", MAX_CHAR);
+        fgets(x[pos].atividade[indiceAtual], MAX_CHAR, stdin);//salva do teclado
+        invalida = comparaDigitadaCadastradas(x[pos].atividade[indiceAtual], x, y, total, &posBusca, &posColabBusca);//ve se ja existe ou se eh so espaco
+        if(invalida==1){
+            printf("\nAtividade já cadastrada anteriormente.\n");
+        }else if(invalida==2){
+            printf("\nAtividade vazia (invalida).\n");
+        }else{
+            x[pos].atividade[indiceAtual][strcspn(x[pos].atividade[indiceAtual], "\n")] = '\0';
+            for (k = 0; k <= strlen(x[pos].atividade[indiceAtual]); k++) { 
+                x[pos].upperAtividade[indiceAtual][k] = toupper(x[pos].atividade[indiceAtual][k]);
+            }
+            char temp[MAX_CHAR];
+            RemoverEspacos(x[pos].upperAtividade[indiceAtual], temp);
+            
+            x[pos].status[indiceAtual] = 1; // status da ativ sempre comeca sendo [1] a fazer
+            
+            do {
+                printf("\nQual a prioridade da atividade?\n[1]ALTA\n[2]MEDIA\n[3]BAIXA\n:");
+                scanf("%d", &x[pos].prioridade[indiceAtual]);
+                if (x[pos].prioridade[indiceAtual] < 1 || x[pos].prioridade[indiceAtual] > 3) {
+                    printf("\nEntrada invalida! Tente novamente!");
+                }
+            } while (x[pos].prioridade[indiceAtual] < 1 || x[pos].prioridade[indiceAtual] > 3);
+            printf("\nAtividade cadastrada com sucesso!\n");
+            x[pos].contador++;
+        }
+    }
+}
+
 void buscarAtividade(struct dados x[], struct usuario y[], int total){
-    int i, validador=0, pos, totalAtv=0;
+    printf("\n===============================");
+    printf("\n      BUSCA DE ATIVIDADE       ");
+    printf("\n===============================\n");
+
+    int i, validador=0, pos, posColab, totalAtv=0;
+    char frase[MAX_CHAR];
 
     for(i=0; i<total; i++){//soma todas as atividades de tds os funcionarios
         totalAtv=totalAtv + x[i].contador;
@@ -380,22 +398,38 @@ void buscarAtividade(struct dados x[], struct usuario y[], int total){
 
     if(totalAtv>0){
         
+        printf("\nDigite o nome da atividade que deseja buscar: ");
+        fgets(frase, MAX_CHAR, stdin);
+
         int validador;
-        validador=comparaDigitadaCadastradas(x, y, total);//CONTINUA DAQUIIII AAAAAA
+        validador=comparaDigitadaCadastradas(frase, x, y, total, &pos, &posColab);
 
         if(validador==0){
             printf("\nAtividade não encontrada.");
-        }else {
+        }else if(validador==2){
+            printf("\nAtividade vazia(invalida).");
+        }else{
             printf("\nAtividade encontrada!\n");
-            puts(atividade[pos]);
-            printf("\nStatus - ");
+            puts(x[posColab].atividade[pos]);
+            printf("\nColaborador: %s \n", y[posColab].nome);
+            printf("\nPrioridade: ");
+            if(x[posColab].prioridade[pos]==1){
+                printf("Alta");
+            }
+            if(x[posColab].prioridade[pos]==2){
+                printf("Media");
+            }
+            if(x[posColab].prioridade[pos]==3){
+                printf("Baixa");
+            }
 
-            if(status[pos]==1){
-                    printf("A fazer");
-            }else if(status[pos]==2){
-                    printf("Em andamento");
-            }else if(status[pos]==3){
-                    printf("Concluida");
+            printf("\n\nStatus - ");
+            if(x[posColab].status[pos]==1){
+                printf("A fazer");
+            }else if(x[posColab].status[pos]==2){
+                printf("Em andamento");
+            }else if(x[posColab].status[pos]==3){
+                printf("Concluida");
             }
         }
     }else{
@@ -510,7 +544,7 @@ void SalvaArquivo(struct dados x[], struct usuario y[], int total){
 
 int main() {
     //VARIAVEIS PARA TODOS==============================
-    int flag = 1, opcao, i = 0, ok = 1, pos, res;
+    int flag = 1, opcao, i = 0, ok = 1, pos, posColab, res;
     int total = 0, f = 0, retornar = 0;
     //==================================================
 
@@ -574,7 +608,7 @@ int main() {
             do {
                 printf("\nDigite o numero da opcao desejada: ");
                 scanf("%d", &opcao);
-                scanf("%*c");
+                getchar();
                 if (opcao < 1 || opcao > 10) {
                     printf("\nOpcao invalida!");
                 }
@@ -584,63 +618,7 @@ int main() {
 
             switch (opcao) {
                 case 1:
-                    printf("\n===============================");
-                    printf("\n     CADASTRO DE ATIVIDADE     ");
-                    printf("\n===============================\n");
-                    if (x[pos].contador >= MAX_TAREFAS) { // verificao de limite de tarefas
-                        printf("\nLimite de tarefas atingido.\n");
-                    } else {
-                        int k;
-                        do {
-                            int apenasEspacos = 0, jaExiste = 0, igual;
-                            do {
-                                printf("\nNome da atividade(max %d caracteres): ", MAX_CHAR);
-                                fgets(x[pos].atividade[i], MAX_CHAR, stdin); //salva do teclado
-                                x[pos].atividade[i][strcspn(x[pos].atividade[i], "\n")] = '\0'; // tirar o \n
-                                apenasEspacos = VerificarEspacos(x[pos].atividade[i]);
-                                char copia[MAX_CHAR]; // variavel copia
-                                strcpy(copia, x[pos].atividade[i]); // copiando
-                                char inter[MAX_CHAR]; // variavel intermediaria
-                                RemoverEspacos(copia, inter); // tirar espacos inuteis
-                                Transfor_Maius(inter); // colocar em maiusculo
-                                for (k = 0; k < x[pos].contador; k++) {
-                                    igual = strcmp(inter, x[pos].upperAtividade[k]); // recebe 0 caso sejam iguais
-                                    if (igual == 0) {
-                                        printf("\nAtividade ja cadastrada anteriormente. Digite outra:\n");
-                                        jaExiste = 1; // retorna 1 pra indicar q eh invalida
-                                        break;
-                                    } else {
-                                        jaExiste = 0;
-                                    }
-                                }
-                            } while (apenasEspacos == 1 || jaExiste == 1);
-
-                            for (k = 0; k < strlen(x[pos].atividade[i]); k++) { //tranformar em maius p/ salvar no upper
-                                x[pos].upperAtividade[i][k] = toupper(x[pos].atividade[i][k]);
-                            }
-                            char corrigida[MAX_CHAR];
-                            RemoverEspacos(corrigida, x[pos].upperAtividade[i]);
-                            x[pos].status[i] = 1; // status da ativ sempre comeca sendo [1] a fazer
-                            printf("\nAtividade cadastrada com sucesso!\n");
-                            do {
-                                printf("\nQual a prioridade da atividade?\n[1]ALTA\n[2]MEDIA\n[3]BAIXA\n:");
-                                scanf("%d", &x[pos].prioridade[i]);
-                                if (x[pos].prioridade[i] < 1 || x[pos].prioridade[i] > 3) {
-                                    printf("\nEntrada invalida! Tente novamente!");
-                                }
-                            } while (x[pos].prioridade[i] < 1 || x[pos].prioridade[i] > 3);
-                            i++;
-                            x[pos].contador++;
-                            do {
-                                printf("\nDeseja cadastrar outra atividade?\n1 - sim\n2 - nao\n");
-                                scanf("%d", &ok);
-                                scanf("%*c"); //limpa o buffer
-                                if (ok < 1 || ok > 2) {
-                                    printf("\nOpcao invalida!");
-                                }
-                            } while (ok < 1 || ok > 2); //repete o scanf ate a opcao ser valida
-                        } while (ok == 1);
-                    }
+                    cadastrarAtividade(x, y, total, pos);
                     break;
 
                 case 2:
@@ -654,9 +632,6 @@ int main() {
                     AtividadeColaborador(x, y, total);
                     break;
                 case 5://buscar atividade
-                    printf("\n===============================");
-                    printf("\n      BUSCA DE ATIVIDADE       ");
-                    printf("\n===============================");
                     buscarAtividade(x, y, total);
 
                     break;
