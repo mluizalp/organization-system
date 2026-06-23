@@ -310,7 +310,7 @@ void ranking(struct dados x[], struct usuario y[], int total){
 
     for(i=0; i<total; i++){
         pos=i;
-        printf("%d lugar - %s - %d atividades concluidas\n", pos+1, y[posicao[i]].nome, x[posicao[i]].contador);
+        printf("%d lugar - %s - %d atividades concluidas\n", pos+1, y[posicao[i]].nome, x[posicao[i]].classificacao);
     }
 
 }
