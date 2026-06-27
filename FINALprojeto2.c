@@ -63,17 +63,20 @@ void MovimentarAtiv (struct dados x[], int pos) {
         do {
             printf("\nDigite o numero da atividade que deseja movimentar: ");
             scanf("%d", &numero);
+            getchar();
 
             if(numero < 0 || numero >= x[pos].contador) {
                 printf("\nAtividade nao existe.\n");
                 printf("\nDeseja tentar novamente?\n[1] Sim\n[2] Nao\n");
                 scanf("%d", &res);
+                getchar();
             } else {
                 do{
                     res = 2;
                     printf("\nPara qual status deseja tranferi-la?\n");
                     printf("[2] A fazer -> Em andamento\n[3] Em andamento -> Concluido\n");
                     scanf("%d", &x[pos].status[numero]); //salva o status na posicao da atividade escolhida
+                    getchar();
                     if(x[pos].status[numero]<2 || x[pos].status[numero]>3){
                         printf("\nStatus invalido!");
                     } //testa se o usuario n digitou outro numero pro status
@@ -372,6 +375,7 @@ void cadastrarAtividade(struct dados x[], struct usuario y[], int total, int *po
             do {
                 printf("\nQual a prioridade da atividade?\n[1]ALTA\n[2]MEDIA\n[3]BAIXA\n:");
                 scanf("%d", &x[pos].prioridade[indiceAtual]);
+                getchar();
                 if (x[pos].prioridade[indiceAtual] < 1 || x[pos].prioridade[indiceAtual] > 3) {
                     printf("\nEntrada invalida! Tente novamente!");
                 }
@@ -455,6 +459,7 @@ int entrar_usuario(struct usuario y[], int total) {
                     printf("\nSenha incorreta.\n1 - Tentar novamente\n2 - Sair\n:");
                     do{
                         scanf("%d", &flag2);
+                        getchar();
                         if(flag2<1 || flag2>2){
                             printf("\nOpcao invalida. Digite novamente: ");
                         }
@@ -472,6 +477,7 @@ int entrar_usuario(struct usuario y[], int total) {
             do {
                 printf("\nId nao existe. O que deseja?\n[1]Sair\n[2]Digitar novamente\n:");
                 scanf("%d", &nao_sei);
+                getchar(); 
                 if (nao_sei == 1) {
                     return -1;
                 } else if (nao_sei == 2) {
@@ -570,6 +576,7 @@ int main() {
                 do {
                     printf("\nDeseja entrar?\n[1]Sim\n[2]Nao\n: "); // otimizacao para permitir a entrada apos cadastro
                     scanf("%d", &f);
+                    getchar();
                     if (f < 1 || f > 2) { // Validacao
                         printf("\nResposta invalida! Tente novamente");
                     }
