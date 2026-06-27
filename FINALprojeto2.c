@@ -2,24 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include "funcoes.c" // arquivo c
 
 #define MAX_CHAR 150
 #define MAX_TAREFAS 100
 #define MAX_FUNCIONARIOS 100
-
-struct dados {
-    char atividade[MAX_TAREFAS][MAX_CHAR];
-    char upperAtividade[MAX_TAREFAS][MAX_CHAR];
-    int status[MAX_TAREFAS];
-    int prioridade[MAX_TAREFAS];
-    int contador;
-};
-
-struct usuario {
-    int id;
-    char senha[MAX_CHAR];
-    char nome[MAX_CHAR];
-};
 
 void AtividadeColaborador (struct dados x[], struct usuario y[], int total) {
     printf("\n===============================");
@@ -103,43 +90,6 @@ void Lista_colab(struct usuario y[], int total) {
     }
 }
 
-void Transfor_Maius(char inter[]) {
-    for (int k = 0; k < strlen(inter); k++) {
-        inter[k] = toupper(inter[k]); //transforma em maiusculo para comparar
-    }
-}
-
-void RemoverEspacos(char frase[], char frase2[]) {
-    int a = 0, b = 0;
-    for (a = 0; a < strlen(frase); a++) { //remove espacos extras
-        if (frase[a] != ' ') {
-            frase2[b] = frase[a];
-            if (frase[a + 1] == ' ') {
-                frase2[b + 1] = ' ';
-                b++;
-            }
-            b++;
-        }
-    }
-    frase2[b] = '\0';
-    if (b > 0 && frase2[b - 1] == ' ') { //remove espacos extras
-        frase2[b - 1] = '\0';
-    }
-    strcpy(frase, frase2);
-}
-
-int VerificarEspacos(char frase[MAX_CHAR]) { // evitar salvar oq tiver so espacos
-    int Retorno = 1;
-    int i;
-    for (i = 0; i < strlen(frase); i++) {
-        if (frase[i] != ' ' && frase[i] != '\n') {
-            Retorno = 0; //frase valida
-            break;
-        }
-    }
-    return Retorno;
-}
-
 void limpar_tela() { // pesquisei pq elas eram diferentes p W e L, ai po, nada inclusivo ne
     #ifdef _WIN32 // basicamente, se for windows, _WIN32 existe
         system("cls"); // usa esse
@@ -183,33 +133,6 @@ void cadastro_usuario(struct usuario y[], int *total) {
 
     (*total)++; // incrementar a quantidade de gente
     printf("\nCadastro realizado com sucesso! Bom trabalho!");
-}
-
-int checar_id(int ident, struct usuario y[], int total) {
-    int j;
-    for (j = 0; j < total; j++) {
-        if (y[j].id == ident) {
-            return 1;
-        }
-    }
-    return 0;
-}
-
-int posicao_id(int ident, struct usuario y[], int total) {
-    int j;
-    for (j = 0; j < total; j++) {
-        if (y[j].id == ident) {
-            return j;
-        }
-    }
-    return -1;
-}
-
-int checar_sen(char sen[], struct usuario y[], int pos) {
-    if (strcmp(y[pos].senha, sen) == 0) {
-        return 1;
-    }
-    return 0;
 }
 
 void listagemAtividades(int pos, struct dados x[]){
@@ -314,34 +237,6 @@ void ranking(struct dados x[], struct usuario y[], int total){
         pos=i;
         printf("%d lugar - %s - %d atividades concluidas\n", pos+1, y[posicao[i]].nome, classificacao[i]);
     }
-
-}
-//le oq o usuario digitar e compara c tudo q tem cadastrado -> usa no cadastro e na busca
-int comparaDigitadaCadastradas(char buscar_ativ[], struct dados x[], struct usuario y[], int total, int *posAtv, int pos){
-
-    int i, j, validador=0, ok=0, apenasEspacos = 0;
-    char copia[MAX_CHAR];
-    char textoAnalise[MAX_CHAR];
-
-    strcpy(textoAnalise, buscar_ativ);
-
-    textoAnalise[strcspn(textoAnalise, "\n")] = '\0';//tira o \n
-    apenasEspacos = VerificarEspacos(textoAnalise);
-    if(apenasEspacos == 1){
-        return 2;//retorna q eh apenas espacos (invalida)
-    }
-    RemoverEspacos(textoAnalise, copia); // tirar espacos inuteis
-    Transfor_Maius(copia); // colocar em maiusculo
-
-    for(j=0; j<x[pos].contador; j++){
-        if(strcmp(x[pos].upperAtividade[j], copia)==0){//se a string digitada e a original maiuscula forem iguais
-            *posAtv=j;//salva a posicao da atividade encontrada
-            validador=1;//confirma q foi encontrado p terminar a verificacao
-            break;
-        }
-    }
-
-    return validador;
 
 }
 
