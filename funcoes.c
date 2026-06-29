@@ -67,15 +67,12 @@ int checar_sen(char sen[], struct usuario y[], int pos) {
 }
 
 //le oq o usuario digitar e compara c tudo q tem cadastrado -> usa no cadastro e na busca
-int comparaDigitadaCadastradas(char buscar_ativ[], struct dados x[], struct usuario y[], int total, int *posAtv, int pos){
+int comparaDigitadaCadastradas(char buscar_ativ[], struct dados x[], int *posAtv, int pos){
 
     int j, validador=0, apenasEspacos = 0;
     char copia[MAX_CHAR];
     char textoAnalise[MAX_CHAR];
-
-    (void)y;     // parametro nao usado nesta funcao, mas mantido pra bater com a assinatura original
-    (void)total; // idem
-
+    
     strcpy(textoAnalise, buscar_ativ);
 
     textoAnalise[strcspn(textoAnalise, "\n")] = '\0';//tira o \n

@@ -98,6 +98,7 @@ void limpar_tela() { // pesquisei pq elas eram diferentes p W e L, ai po, nada i
     #endif // fecha o bloco
 }
 
+// modificado
 void cadastro_usuario(struct usuario y[], int *total) {
     int flag = 1;
     if (*total >= MAX_FUNCIONARIOS) {
@@ -120,6 +121,12 @@ void cadastro_usuario(struct usuario y[], int *total) {
             printf("\nNao eh permitido o cadastro de nomes vazios");
         }
     } while (flag);
+
+    // essa parte vai sair o nome dele em um vetor (todo maiusculo e sem espacos);
+    char inter[MAX_CHAR];
+    strcpy(inter, y[k].nome);
+    Transfor_Maius(inter);
+    RemoverEspacos(inter, y[k].nome_maius);
 
     do { // looping para senha valida
         printf("\nSenha (digite sua senha): ");
@@ -240,6 +247,46 @@ void ranking(struct dados x[], struct usuario y[], int total){
 
 }
 
+void atividades_por_colab(struct dados x[], struct usuario y[], int total) {
+    char colab[MAX_CHAR];
+    char colab2[MAX_CHAR];
+    int valid = 1, retorno = 1;
+    if (total > 0) {
+        printf("\n===============================");
+        printf("\n   ATIVIDADES DE COLABORADOR   ");
+        printf("\n===============================");
+        printf("\nDigite o nome do colaborador que deseja buscar: ");
+        fgets(colab, MAX_CHAR, stdin); // pega o nome do colaborador
+        retorno = VerificarEspacos(colab);
+
+        if (retorno) {
+            printf("\nNome invalido.");
+        } else {
+            colab[strcspn(colab, "\n")] = '\0'; 
+            Transfor_Maius(colab); // deixa maiusculo
+            RemoverEspacos(colab, colab2); // tira espacos inuteis
+
+            int j;
+            for(j = 0; j < total; j++) {
+                if (strcmp(y[j].nome_maius, colab2) == 0) { // se for igual
+                    valid = 0;
+                    printf("\nAtividades do colaborador(a) %s:\n", y[j].nome);
+                    listagemAtividades(j, x);
+                    printf("\n");
+                }
+            }
+
+            if (valid) {
+                printf("\nNenhum colaborador cadastrado com esse nome");
+            }
+        }
+
+    } else {
+        printf("\nNao existem colaboradores cadastrados");
+    }
+
+} // nova: tive essa ideia pq sim :D
+
 void cadastrarAtividade(struct dados x[], struct usuario y[], int total, int *posAtv, int pos){
     printf("\n===============================");
     printf("\n     CADASTRO DE ATIVIDADE     ");
@@ -252,7 +299,7 @@ void cadastrarAtividade(struct dados x[], struct usuario y[], int total, int *po
         
         printf("\nNome da atividade(max %d caracteres): ", MAX_CHAR);
         fgets(x[pos].atividade[indiceAtual], MAX_CHAR, stdin);//salva do teclado
-        invalida = comparaDigitadaCadastradas(x[pos].atividade[indiceAtual], x, y, total, posAtv, pos);//ve se ja existe ou se eh so espaco
+        invalida = comparaDigitadaCadastradas(x[pos].atividade[indiceAtual], x, posAtv, pos);//ve se ja existe ou se eh so espaco
         if(invalida==1){
             printf("\nAtividade já cadastrada anteriormente.\n");
         }else if(invalida==2){
@@ -295,7 +342,7 @@ void buscarAtividade(struct dados x[], struct usuario y[], int total, int *posAt
         fgets(frase, MAX_CHAR, stdin);
 
         int validador;
-        validador=comparaDigitadaCadastradas(frase, x, y, total, posAtv, pos);
+        validador=comparaDigitadaCadastradas(frase, x, posAtv, pos);
 
         if(validador==0){
             printf("\nAtividade não encontrada.");
@@ -386,6 +433,7 @@ int entrar_usuario(struct usuario y[], int total) {
     return -1;
 }
 
+// modificado (so caso eu quebre o codigo, so p lembrar onde fiz as mudancas)
 int LerArquivo(struct dados x[], struct usuario y[], int *total){
     FILE *arquivo = fopen("empresa.txt", "r");
     if(arquivo==NULL){
@@ -396,6 +444,10 @@ int LerArquivo(struct dados x[], struct usuario y[], int *total){
     while(i<MAX_FUNCIONARIOS && fscanf(arquivo, "%d\n", &y[i].id)==1){//enquanto tiver dentro do limite de funcionarios e obter sucesso na leitura do id
         fgets(y[i].nome, MAX_CHAR, arquivo);
         y[i].nome[strcspn(y[i].nome, "\n")] = 0;
+
+        fgets(y[i].nome_maius, MAX_CHAR, arquivo); //ler o nome em maius
+        y[i].nome_maius[strcspn(y[i].nome_maius, "\n")] = 0;
+
         fgets(y[i].senha, MAX_CHAR, arquivo); 
         y[i].senha[strcspn(y[i].senha, "\n")] = 0;
         fscanf(arquivo, "%d\n", &x[i].contador);//le o contador de atividades do funcionario i
@@ -418,7 +470,7 @@ int LerArquivo(struct dados x[], struct usuario y[], int *total){
     *total=i;
     return i;
 }
-
+// modificado
 void SalvaArquivo(struct dados x[], struct usuario y[], int total){
     FILE *arquivo = fopen("empresa.txt", "w");
     
@@ -429,7 +481,7 @@ void SalvaArquivo(struct dados x[], struct usuario y[], int total){
     int i=0, j=0;
 
     for(i=0; i<total; i++){
-        fprintf(arquivo, "%d\n%s\n%s\n%d\n", y[i].id, y[i].nome, y[i].senha, x[i].contador);
+        fprintf(arquivo, "%d\n%s\n%s\n%s\n%d\n", y[i].id, y[i].nome, y[i].nome_maius, y[i].senha, x[i].contador);
         for(j=0; j<x[i].contador; j++){
             fprintf(arquivo, "%d\n%s\n%s\n%d\n", x[i].status[j], x[i].atividade[j], x[i].upperAtividade[j], x[i].prioridade[j]);
         }
@@ -500,15 +552,15 @@ int main() {
             printf("\n===============================");
             printf("\n             MENU              ");
             printf("\n===============================");
-            printf("\n\n1 - Cadastrar nova atividade\n2 - Listagem das atividades\n3 - Movimentacao das atividades\n4 - Quantidade de atividades por colaborador\n5 - Busca de atividades\n6 - Listagem de colaboradores\n7 - Estatistica geral\n8 - Ranking de produtividade\n9 - Salvar e Encerrar\n10 - Voltar ao inicio\n");
+            printf("\n\n1 - Cadastrar nova atividade\n2 - Listagem das atividades\n3 - Movimentacao das atividades\n4 - Quantidade de atividades por colaborador\n5 - Busca de atividades\n6 - Listagem de colaboradores\n7 - Estatistica geral\n8 - Ranking de produtividade\n9 - Listagem de atividades de um colaborador\n10 - Salvar e Encerrar\n11 - Voltar ao inicio\n");
             do {
                 printf("\nDigite o numero da opcao desejada: ");
                 scanf("%d", &opcao);
                 getchar();
-                if (opcao < 1 || opcao > 10) {
+                if (opcao < 1 || opcao > 11) {
                     printf("\nOpcao invalida!");
                 }
-            } while (opcao < 1 || opcao > 10); //repete o scanf ate a opcao ser valida
+            } while (opcao < 1 || opcao > 11); //repete o scanf ate a opcao ser valida
 
             limpar_tela();
 
@@ -539,10 +591,13 @@ int main() {
                 case 8://ranking de atividade
                     ranking(x, y, total);
                     break;
-                case 9:
-                    flag = 0;
+                case 9: 
+                    atividades_por_colab(x, y, total); // Novidade: pensei em fazer a possibilidade de pesquisar um colaborador especifico e mostrar todas as atividades dele
                     break;
                 case 10:
+                    flag = 0;
+                    break;
+                case 11:
                     flag = 0;
                     retornar = 1;
                     break;
