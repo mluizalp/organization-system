@@ -79,16 +79,16 @@ void teste_comparaDigitadaCadastradas_duplicidade(void) {
 
     // deve falar se tiver atividades duplicadas
     // com espacos extras e letras maiusculas/minusculas diferentes
-    int resultado = comparaDigitadaCadastradas("  estudar   c  \n", x, y, 1, &posAtv, 0);
+    int resultado = comparaDigitadaCadastradas("  estudar   c  \n", x, &posAtv, 0);
     assert(resultado == 1);       // 1 = encontrou (duplicada)
     assert(posAtv == 0);          // encontrou na posicao certa
 
     // busca sem resultado valido
-    int resultado2 = comparaDigitadaCadastradas("Outra coisa\n", x, y, 1, &posAtv, 0);
+    int resultado2 = comparaDigitadaCadastradas("Outra coisa\n", x, &posAtv, 0);
     assert(resultado2 == 0);      // 0 = nao encontrou
 
     // deve retornar 2 (entrada invalida)
-    int resultado3 = comparaDigitadaCadastradas("    \n", x, y, 1, &posAtv, 0);
+    int resultado3 = comparaDigitadaCadastradas("    \n", x, &posAtv, 0);
     assert(resultado3 == 2);      // 2 = invalida (so espacos)
 
     printf("[OK] teste_comparaDigitadaCadastradas_duplicidade\n");
